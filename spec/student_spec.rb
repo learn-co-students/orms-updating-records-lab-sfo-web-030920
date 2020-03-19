@@ -1,14 +1,12 @@
 require "spec_helper"
 
 describe "Student" do
-
-  let(:josh) {Student.new("Josh", "9th")}
+  let(:josh) { Student.new("Josh", "9th") }
 
   before(:each) do |example|
     unless example.metadata[:skip_before]
-
       DB[:conn].execute("DROP TABLE IF EXISTS students")
-      sql =  <<-SQL
+      sql = <<-SQL
       CREATE TABLE IF NOT EXISTS students (
         id INTEGER PRIMARY KEY,
         name TEXT,
@@ -20,28 +18,28 @@ describe "Student" do
   end
 
   describe "attributes" do
-    it 'has a name and a grade' do
+    it "has a name and a grade" do
       student = Student.new("Tiffany", "11th")
       expect(student.name).to eq("Tiffany")
       expect(student.grade).to eq("11th")
     end
 
-    it 'has an id that defaults to `nil` on initialization' do
+    it "has an id that defaults to `nil` on initialization" do
       expect(josh.id).to eq(nil)
     end
   end
 
   describe ".create_table" do
-    it 'creates the students table in the database', :skip_before do
+    it "creates the students table in the database", :skip_before do
       DB[:conn].execute("DROP TABLE IF EXISTS students")
       Student.create_table
       table_check_sql = "SELECT tbl_name FROM sqlite_master WHERE type='table' AND tbl_name='students';"
-      expect(DB[:conn].execute(table_check_sql)[0]).to eq(['students'])
+      expect(DB[:conn].execute(table_check_sql)[0]).to eq(["students"])
     end
   end
 
   describe ".drop_table" do
-    it 'drops the students table from the database' do
+    it "drops the students table from the database" do
       Student.drop_table
       table_check_sql = "SELECT tbl_name FROM sqlite_master WHERE type='table' AND tbl_name='students';"
       expect(DB[:conn].execute(table_check_sql)[0]).to eq(nil)
@@ -49,14 +47,14 @@ describe "Student" do
   end
 
   describe "#save" do
-    it 'saves an instance of the Student class to the database and then sets the given students `id` attribute' do
+    it "saves an instance of the Student class to the database and then sets the given students `id` attribute" do
       sarah = Student.new("Sarah", "9th")
       sarah.save
       expect(DB[:conn].execute("SELECT * FROM students")).to eq([[1, "Sarah", "9th"]])
       expect(sarah.id).to eq(1)
     end
 
-    it 'updates a record if called on an object that is already persisted' do
+    it "updates a record if called on an object that is already persisted" do
       jane = Student.new("Jane", "11th")
       jane.save
       jane_id = jane.id
@@ -68,14 +66,14 @@ describe "Student" do
   end
 
   describe ".create" do
-    it 'creates a student with two attributes, name and grade, and saves it into the students table.' do
+    it "creates a student with two attributes, name and grade, and saves it into the students table." do
       Student.create("Sally", "10th")
       expect(DB[:conn].execute("SELECT * FROM students")).to eq([[1, "Sally", "10th"]])
     end
   end
 
-  describe '.new_from_db' do
-    it 'creates an instance with corresponding attribute values' do
+  describe ".new_from_db" do
+    it "creates an instance with corresponding attribute values" do
       row = [1, "Pat", 12]
       pat = Student.new_from_db(row)
 
@@ -85,8 +83,8 @@ describe "Student" do
     end
   end
 
-  describe '.find_by_name' do
-    it 'returns an instance of student that matches the name from the DB' do
+  describe ".find_by_name" do
+    it "returns an instance of student that matches the name from the DB" do
       josh.save
       josh_id = josh.id
       josh_from_db = Student.find_by_name("Josh")
@@ -97,8 +95,8 @@ describe "Student" do
     end
   end
 
-  describe '#update' do
-    it 'updates the record associated with a given instance' do
+  describe "#update" do
+    it "updates the record associated with a given instance" do
       josh.save
       josh.name = "Josh Jr."
       josh.update
